@@ -1,4 +1,4 @@
-﻿using QuanLyKho.DTO;
+using QuanLyKho.DTO;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,30 +12,62 @@ namespace QuanLyKho
 {
     public partial class FormHomePage : Form
     {
+        private int currentButtonIndex = -1; // Biến theo dõi nút vị trí hiện tại
+
         public FormHomePage()
         {
             InitializeComponent();
 
-            // Thiết lập listView1 ở chế độ Details với các cột
+            // Thiết lập listView1 ở chế độ Details với các cột mới
             listView1.View = View.Details;
             listView1.FullRowSelect = true;
             listView1.GridLines = true;
-            listView1.Columns.Add("SKU Code",    120);
-            listView1.Columns.Add("Sản phẩm",   180);
-            listView1.Columns.Add("Đơn vị",      80);
-            listView1.Columns.Add("Số lượng",    90);
+            listView1.Columns.Clear(); 
+            listView1.Columns.Add("Vị trí lưu kho",   100);
+            listView1.Columns.Add("Danh mục",      100);
+            listView1.Columns.Add("Sản phẩm",      100);
+            listView1.Columns.Add("SKU Code",      100);
+            listView1.Columns.Add("Đơn vị",         100);
+            listView1.Columns.Add("Số lượng",       100);
 
             LoadLocation();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            // CHUYỂN KHO: Nhảy đến vị trí đầu tiên của kho tiếp theo
+            if (flowLayoutPanel3.Controls.Count == 0) return;
 
+            int currentWarehouseID = -1;
+            if (currentButtonIndex != -1)
+            {
+                Button currentBtn = (Button)flowLayoutPanel3.Controls[currentButtonIndex];
+                currentWarehouseID = ((StorageLocation)currentBtn.Tag).WarehouseID1;
+            }
+
+            for (int i = 0; i < flowLayoutPanel3.Controls.Count; i++)
+            {
+                int nextIndex = (currentButtonIndex + 1 + i) % flowLayoutPanel3.Controls.Count;
+                Button nextBtn = (Button)flowLayoutPanel3.Controls[nextIndex];
+                int nextWarehouseID = ((StorageLocation)nextBtn.Tag).WarehouseID1;
+
+                if (nextWarehouseID != currentWarehouseID)
+                {
+                    currentButtonIndex = nextIndex;
+                    nextBtn.PerformClick();
+                    return;
+                }
+            }
         }
 
         private void button4_Click(object sender, EventArgs e)
         {
+            // CHUYỂN VỊ TRÍ: Nhảy sang vị trí kế tiếp trong danh sách
+            if (flowLayoutPanel3.Controls.Count == 0) return;
 
+            currentButtonIndex = (currentButtonIndex + 1) % flowLayoutPanel3.Controls.Count;
+            Button nextBtn = (Button)flowLayoutPanel3.Controls[currentButtonIndex];
+            nextBtn.PerformClick();
         }
 
         private void adminToolStripMenuItem_Click(object sender, EventArgs e)
@@ -84,17 +116,28 @@ namespace QuanLyKho
 
             foreach (Inventory item in inventoryList)
             {
-                ListViewItem row = new ListViewItem(item.SkuCode);
+                // Cột chính: Mô tả vị trí
+                ListViewItem row = new ListViewItem(item.LocationDescription);
+                
+                // Các cột phụ (SubItems)
+                row.SubItems.Add(item.CategoryName);
                 row.SubItems.Add(item.ProductName);
+                row.SubItems.Add(item.SkuCode);
                 row.SubItems.Add(item.Unit);
                 row.SubItems.Add(item.Quantity.ToString());
+                
                 listView1.Items.Add(row);
             }
         }
 
         private void Btn_Click(object? sender, EventArgs e)
         {
-            StorageLocation location = (StorageLocation)(sender as Button).Tag;
+            Button btn = sender as Button;
+            StorageLocation location = (StorageLocation)btn.Tag;
+            
+            // Cập nhật chỉ số nút hiện tại
+            currentButtonIndex = flowLayoutPanel3.Controls.IndexOf(btn);
+
             int locationId = location.LocationID1;
             ShowInventory(locationId);
         }

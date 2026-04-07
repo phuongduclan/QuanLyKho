@@ -95,13 +95,13 @@
             flowLayoutPanel1.Size = new Size(570, 56);
             flowLayoutPanel1.TabIndex = 0;
             // 
-            // button2  –  Xác nhận
+            // button2  –  Chuyển kho
             // 
             button2.Location = new Point(5, 5);
             button2.Name = "button2";
             button2.Size = new Size(275, 46);
             button2.TabIndex = 4;
-            button2.Text = "Xác nhận";
+            button2.Text = "Chuyển kho";
             button2.UseVisualStyleBackColor = true;
             button2.Click += button2_Click;
             // 

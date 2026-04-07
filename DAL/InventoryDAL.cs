@@ -19,13 +19,13 @@ namespace QuanLyKho.DAL
         private InventoryDAL() { }
 
         /// <summary>
-        /// Gọi proc USP_GetInventoryByLocation để lấy danh sách hàng tồn kho tại một vị trí cụ thể.
+        /// Gọi proc USP_GetInventoryByLocationID để lấy danh sách hàng tồn kho tại một vị trí cụ thể.
         /// </summary>
         public List<Inventory> GetInventoryByLocation(int locationId)
         {
             var list = new List<Inventory>();
 
-            string query = "USP_GetInventoryByLocation @locationid";
+            string query = "USP_GetInventoryByLocationID @locationid";
             DataTable data = DataProvider.Instance.ExecuteQuery(query, new object[] { locationId });
 
             foreach (DataRow row in data.Rows)

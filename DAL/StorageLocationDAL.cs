@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
@@ -21,7 +21,7 @@ namespace QuanLyKho.DAL
         {
             List<StorageLocation> locationList = new List<StorageLocation>();
 
-            DataTable data=DataProvider.Instance.ExecuteQuery("USP_GetLocationList");
+            DataTable data=DataProvider.Instance.ExecuteQuery("USP_GetStorageLocation");
             foreach (DataRow item in data.Rows)
             {
                 StorageLocation location = new StorageLocation(item);

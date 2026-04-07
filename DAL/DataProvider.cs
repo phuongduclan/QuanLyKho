@@ -16,7 +16,7 @@ namespace QuanLyKho.DAL
             private set { DataProvider.instance = value; }
         }
         private DataProvider() { }
-        private string connectionSTR = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=warehouse_db;Persist Security Info=True;User ID=sa;Password=@Bina0608;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Application Name=\"SQL Server Management Studio\";Command Timeout=0";
+        private string connectionSTR = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=warehouse;Persist Security Info=True;User ID=sa;Password=@Bina0608;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Application Name=\"SQL Server Management Studio\";Command Timeout=0";
         public DataTable ExecuteQuery(string query, object[] parameter = null)
         {
             DataTable data = new DataTable();
