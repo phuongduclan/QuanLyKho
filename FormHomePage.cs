@@ -31,6 +31,7 @@ namespace QuanLyKho
             listView1.Columns.Add("Số lượng",       100);
 
             LoadLocation();
+            UiTheme.StyleHomeForm(this);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -93,13 +94,7 @@ namespace QuanLyKho
                 btn.Click += Btn_Click;
                 btn.Tag    = location;   // lưu object StorageLocation vào Tag
 
-                switch (location.WarehouseID1)
-                {
-                    case 1:  btn.BackColor = Color.LightBlue;   break;
-                    case 2:  btn.BackColor = Color.LightGreen;  break;
-                    case 3:  btn.BackColor = Color.LightYellow; break;
-                    default: btn.BackColor = Color.LightGray;   break;
-                }
+                UiTheme.StyleLocationCardButton(btn, location.WarehouseID1);
 
                 flowLayoutPanel3.Controls.Add(btn);
             }

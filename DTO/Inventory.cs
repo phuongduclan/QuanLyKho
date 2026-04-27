@@ -11,7 +11,7 @@ namespace QuanLyKho.DTO
         {
             this.LocationId          = (int)row["location_id"];
             this.LocationDescription = row["location_description"] == DBNull.Value ? "" : (string)row["location_description"];
-            this.CategoryName        = (string)row["category_name"];
+            this.CategoryName        = row["category_name"] == DBNull.Value ? "" : (string)row["category_name"];
             this.ProductName         = (string)row["product_name"];
             this.SkuCode             = (string)row["sku_code"];
             this.Unit                = row["unit"] == DBNull.Value ? "" : (string)row["unit"];

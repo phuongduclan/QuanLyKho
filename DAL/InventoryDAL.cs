@@ -35,5 +35,17 @@ namespace QuanLyKho.DAL
 
             return list;
         }
+
+        public DataTable ViewInventoryDetail() =>
+            DataProvider.Instance.ExecuteQuery("SELECT * FROM UV_InventoryDetail");
+
+        public DataTable ViewTotalByWarehouse() =>
+            DataProvider.Instance.ExecuteQuery("SELECT * FROM UV_HienThiTongKho");
+
+        public DataTable ViewTotalByLocation() =>
+            DataProvider.Instance.ExecuteQuery("SELECT * FROM UV_HienThiLuuTru");
+
+        public DataTable ViewTotalBySku() =>
+            DataProvider.Instance.ExecuteQuery("SELECT * FROM UV_HienThiTongSanPham");
     }
 }

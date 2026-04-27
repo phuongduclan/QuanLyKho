@@ -1,97 +1,123 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic.ApplicationServices;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Text.RegularExpressions;
 
 namespace QuanLyKho.DAL
 {
     public class DataProvider
     {
-        private static DataProvider instance;// Singleton
+        /// <summary>Lấy tên tham số @xxx theo thứ tự xuất hiện (tránh lỗi @NgayBatDau, khi tách theo khoảng trắng).</summary>
+        private static List<string> ExtractParameterNames(string query)
+        {
+            var list = new List<string>();
+            foreach (Match m in Regex.Matches(query, @"@\w+"))
+                list.Add(m.Value);
+            return list;
+        }
+
+        private static DataProvider? _instance;
+
         public static DataProvider Instance
         {
-            get { if (instance == null) instance = new DataProvider(); return DataProvider.instance; }
-            private set { DataProvider.instance = value; }
+            get
+            {
+                _instance ??= new DataProvider();
+                return _instance;
+            }
         }
+
         private DataProvider() { }
-        private string connectionSTR = "Data Source=localhost\\SQLEXPRESS;Initial Catalog=warehouse;Persist Security Info=True;User ID=sa;Password=@Bina0608;Pooling=False;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=True;Application Name=\"SQL Server Management Studio\";Command Timeout=0";
-        public DataTable ExecuteQuery(string query, object[] parameter = null)
+
+        private readonly string connectionSTR =
+            "Data Source=localhost\\SQLEXPRESS;" +
+            "Initial Catalog=warehouse_management;" +
+            "Integrated Security=True;" +
+            "Encrypt=True;" +
+            "TrustServerCertificate=True;";
+
+        public DataTable ExecuteQuery(string query, object[]? parameter = null)
         {
-            DataTable data = new DataTable();
-            using (SqlConnection connection = new SqlConnection(connectionSTR))
+            var data = new DataTable();
+            using (var connection = new SqlConnection(connectionSTR))
             {
                 connection.Open();
-                SqlCommand command = new SqlCommand(query, connection);
+                using var command = new SqlCommand(query, connection);
                 if (parameter != null)
                 {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
+                    var names = ExtractParameterNames(query);
+                    for (int i = 0; i < names.Count && i < parameter.Length; i++)
+                        command.Parameters.AddWithValue(names[i], parameter[i] ?? DBNull.Value);
                 }
-                SqlDataAdapter adapter = new SqlDataAdapter(command);
+
+                using var adapter = new SqlDataAdapter(command);
                 adapter.Fill(data);
-                connection.Close();
             }
+
             return data;
         }
-        public int ExecuteNonQuery(string query, object[] parameter = null)
+
+        public int ExecuteNonQuery(string query, object[]? parameter = null)
         {
-            int data = 0;
-            using (SqlConnection connection = new SqlConnection(connectionSTR))
+            using var connection = new SqlConnection(connectionSTR);
+            connection.Open();
+            using var command = new SqlCommand(query, connection);
+            if (parameter != null)
             {
-                connection.Open();
-                SqlCommand command = new SqlCommand(query, connection);
-                if (parameter != null)
-                {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
-                }
-                data = command.ExecuteNonQuery();
-                connection.Close();
+                var names = ExtractParameterNames(query);
+                for (int i = 0; i < names.Count && i < parameter.Length; i++)
+                    command.Parameters.AddWithValue(names[i], parameter[i] ?? DBNull.Value);
             }
-            return data;
+
+            return command.ExecuteNonQuery();
         }
-        public object ExecuteScalar(string query, object[] parameter = null)
+
+        public object? ExecuteScalar(string query, object[]? parameter = null)
         {
-            object data = 0;
-            using (SqlConnection connection = new SqlConnection(connectionSTR))
+            using var connection = new SqlConnection(connectionSTR);
+            connection.Open();
+            using var command = new SqlCommand(query, connection);
+            if (parameter != null)
             {
-                connection.Open();
-                SqlCommand command = new SqlCommand(query, connection);
-                if (parameter != null)
-                {
-                    string[] listPara = query.Split(' ');
-                    int i = 0;
-                    foreach (string item in listPara)
-                    {
-                        if (item.Contains('@'))
-                        {
-                            command.Parameters.AddWithValue(item, parameter[i]);
-                            i++;
-                        }
-                    }
-                }
-                data = command.ExecuteScalar();
-                connection.Close();
+                var names = ExtractParameterNames(query);
+                for (int i = 0; i < names.Count && i < parameter.Length; i++)
+                    command.Parameters.AddWithValue(names[i], parameter[i] ?? DBNull.Value);
             }
-            return data;
+
+            return command.ExecuteScalar();
+        }
+
+        /// <summary>
+        /// Thực thi lệnh SQL/thủ tục có tham số rõ ràng (không dùng split chuỗi).
+        /// </summary>
+        public int ExecuteNonQueryTyped(string commandText, CommandType commandType, params SqlParameter[] parameters)
+        {
+            using var connection = new SqlConnection(connectionSTR);
+            connection.Open();
+            using var command = new SqlCommand(commandText, connection) { CommandType = commandType };
+            if (parameters is { Length: > 0 })
+                command.Parameters.AddRange(parameters);
+            return command.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Gọi thủ tục rồi lấy IDENT_CURRENT cho bảng identity (script không trả về SCOPE_IDENTITY).
+        /// </summary>
+        public int ExecuteStoredProcedureThenIdentCurrent(string procedureName, SqlParameter[]? procedureParameters, string identTableName)
+        {
+            if (string.IsNullOrWhiteSpace(identTableName) || identTableName.Contains('\'') || identTableName.Contains(';'))
+                throw new ArgumentException(nameof(identTableName));
+
+            using var connection = new SqlConnection(connectionSTR);
+            connection.Open();
+            using (var cmd = new SqlCommand(procedureName, connection) { CommandType = CommandType.StoredProcedure })
+            {
+                if (procedureParameters is { Length: > 0 })
+                    cmd.Parameters.AddRange(procedureParameters);
+                cmd.ExecuteNonQuery();
+            }
+
+            using var cmd2 = new SqlCommand($"SELECT CAST(IDENT_CURRENT(N'{identTableName}') AS INT)", connection);
+            return Convert.ToInt32(cmd2.ExecuteScalar());
         }
     }
 }

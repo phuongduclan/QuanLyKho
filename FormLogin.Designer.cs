@@ -44,16 +44,16 @@
             // 
             panel1.Controls.Add(textBox1);
             panel1.Controls.Add(label1);
-            panel1.Location = new Point(12, 12);
+            panel1.Location = new Point(28, 52);
             panel1.Name = "panel1";
-            panel1.Size = new Size(776, 158);
+            panel1.Size = new Size(544, 108);
             panel1.TabIndex = 0;
             // 
             // textBox1
             // 
-            textBox1.Location = new Point(318, 70);
+            textBox1.Location = new Point(200, 36);
             textBox1.Name = "textBox1";
-            textBox1.Size = new Size(455, 31);
+            textBox1.Size = new Size(300, 34);
             textBox1.TabIndex = 1;
             // 
             // label1
@@ -71,16 +71,16 @@
             // 
             panel2.Controls.Add(textBox2);
             panel2.Controls.Add(label2);
-            panel2.Location = new Point(12, 176);
+            panel2.Location = new Point(28, 174);
             panel2.Name = "panel2";
-            panel2.Size = new Size(776, 158);
+            panel2.Size = new Size(544, 108);
             panel2.TabIndex = 1;
             // 
             // textBox2
             // 
-            textBox2.Location = new Point(318, 78);
+            textBox2.Location = new Point(200, 36);
             textBox2.Name = "textBox2";
-            textBox2.Size = new Size(455, 31);
+            textBox2.Size = new Size(300, 34);
             textBox2.TabIndex = 2;
             textBox2.UseSystemPasswordChar = true;
             // 
@@ -96,9 +96,9 @@
             // 
             // button1
             // 
-            button1.Location = new Point(525, 389);
+            button1.Location = new Point(252, 448);
             button1.Name = "button1";
-            button1.Size = new Size(112, 34);
+            button1.Size = new Size(168, 44);
             button1.TabIndex = 2;
             button1.Text = "Đăng nhập";
             button1.UseVisualStyleBackColor = true;
@@ -106,9 +106,9 @@
             // 
             // button2
             // 
-            button2.Location = new Point(676, 389);
+            button2.Location = new Point(432, 448);
             button2.Name = "button2";
-            button2.Size = new Size(112, 34);
+            button2.Size = new Size(168, 44);
             button2.TabIndex = 3;
             button2.Text = "Thoát";
             button2.UseVisualStyleBackColor = true;
@@ -118,7 +118,8 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(600, 520);
+            MinimumSize = new Size(440, 400);
             Controls.Add(button2);
             Controls.Add(button1);
             Controls.Add(panel2);

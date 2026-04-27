@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
+﻿using System.Data;
 
 namespace QuanLyKho.DAL
 {
-    internal class AccountDAL
+    public class AccountDAL
     {
         private static AccountDAL instance;// Singleton
         public static  AccountDAL Instance
@@ -19,7 +15,7 @@ namespace QuanLyKho.DAL
 
         public bool Login(string userName, string passWord)
         {
-            string query = "USP_Login @userName , @passWord";
+            string query = "USP_Login @UserName , @Password";
 
             DataTable  result=DataProvider.Instance.ExecuteQuery(query,new object[] { userName, passWord });
 

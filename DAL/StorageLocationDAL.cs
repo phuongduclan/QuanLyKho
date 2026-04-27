@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using QuanLyKho.DTO;
-using System.Data.SqlClient;
 
 namespace QuanLyKho.DAL
 {
@@ -29,6 +25,30 @@ namespace QuanLyKho.DAL
             }
             return locationList;
         }
-    }
 
+        public DataTable ListAsTable() =>
+            DataProvider.Instance.ExecuteQuery("USP_GetStorageLocation");
+
+        public DataTable SearchByDescription(string description) =>
+            DataProvider.Instance.ExecuteQuery("USP_SearchLocationByDescription @Description", new object[] { description });
+
+        public void Insert(string description, int capacity, int warehouseId) =>
+            DataProvider.Instance.ExecuteNonQuery(
+                "USP_InsertStorageLocation @Description, @Capacity, @WarehouseID",
+                new object[] { description, capacity, warehouseId });
+
+        public void Update(int locationId, string? description, int? capacity, int? warehouseId) =>
+            DataProvider.Instance.ExecuteNonQuery(
+                "USP_UpdateStorageLocation @LocationID, @Description, @Capacity, @WarehouseID",
+                new object[]
+                {
+                    locationId,
+                    description ?? (object)DBNull.Value,
+                    capacity ?? (object)DBNull.Value,
+                    warehouseId ?? (object)DBNull.Value
+                });
+
+        public void Delete(int locationId) =>
+            DataProvider.Instance.ExecuteNonQuery("USP_DeleteStorageLocation @LocationID", new object[] { locationId });
+    }
 }
